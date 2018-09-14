@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "adf-app.fullname" . }}-admin
+  labels:
+    app: {{ template "adf-app.fullname" . }}-admin
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "adf-app.fullname" . }}-admin
+        release: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.registryPullSecrets }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.adminApp.image.repository }}:{{ .Values.adminApp.image.tag }}"
+          imagePullPolicy: {{ .Values.adminApp.image.pullPolicy }}
+          resources:
+{{ toYaml .Values.adminApp.resources | indent 12 }}
+    {{- if .Values.adminApp.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.adminApp.nodeSelector | indent 8 }}
+    {{- end }}

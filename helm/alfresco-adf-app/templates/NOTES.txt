@@ -1,0 +1,16 @@
+
+{{ if .Values.dnsaddress }}
+
+You can access ADF frontend process admin and modeler app using this address:
+
+  Alfresco Adf frontend Modeler App: {{ .Values.dnsaddress }}/ama-app
+
+  Alfresco Adf frontend process admin App: {{ .Values.dnsaddress }}/apa-app
+
+{{ else }}
+
+If you have a specific DNS address for the cluster please run the following commands to get the application paths:
+
+helm upgrade --reuse-values {{ .Release.Name }} --set dnsaddress="Your DNS address ex: http://myenv.com" alfresco-incubator/alfresco-adf-app
+
+{{ end }}

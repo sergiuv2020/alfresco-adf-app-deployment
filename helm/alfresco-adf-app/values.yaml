@@ -1,0 +1,30 @@
+replicaCount: 1
+registryPullSecrets: quay-registry-secret
+
+adminApp:
+  replicacount: 1
+  image:
+    repository: docker-internal.alfresco.com/adf/process-admin
+    tag: "development-103"
+    pullPolicy: IfNotPresent
+  service:
+    name: adf-admin
+    type: ClusterIP
+    externalPort: 3000
+  ingress:
+    path: /apa-app
+
+modelerApp:
+  replicacount: 1
+  image:
+    repository: docker-internal.alfresco.com/adf/alfresco-modeler-app
+    tag: "development-144"
+    pullPolicy: IfNotPresent
+  service:
+    name: adf-modeler
+    type: ClusterIP
+    externalPort: 3000
+  ingress:
+    path: /ama-app
+  environment:
+
