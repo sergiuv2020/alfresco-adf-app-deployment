@@ -1,0 +1,88 @@
+# Auto DevOps
+# This CI/CD configuration provides a standard pipeline for
+# * building helm chart and push it to Alfresco incubator repo
+# In order to deploy, you must have a Kubernetes cluster configured either
+# via a project integration, or via group/project variables.
+
+image: alpine:latest
+
+variables:
+  KUBERNETES_VERSION: 1.8.6
+  HELM_VERSION: 2.8.2
+
+stages:
+  - build
+
+publish_chart:
+  stage: deploy
+  script:
+    - install_dependencies
+    - download_runner_config
+    - setup_github_ssh
+    - setup_build_helm_tools
+    - publish_helm_chart
+  when: manual
+  only:
+    refs:
+      - develop
+
+#---------------------------------------
+
+
+.auto_devops: &auto_devops |
+  # Auto DevOps variables and functions
+
+ function install_dependencies() {
+    apk add -U openssl curl tar gzip bash ca-certificates git openssh
+    wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
+    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-2.23-r3.apk
+    apk add glibc-2.23-r3.apk
+    rm glibc-2.23-r3.apk
+
+    curl "https://kubernetes-helm.storage.googleapis.com/helm-v${HELM_VERSION}-linux-amd64.tar.gz" | tar zx
+    mv linux-amd64/helm /usr/bin/
+    helm version --client
+
+    curl -L -o /usr/bin/kubectl "https://storage.googleapis.com/kubernetes-release/release/v${KUBERNETES_VERSION}/bin/linux/amd64/kubectl"
+    chmod +x /usr/bin/kubectl
+    kubectl version --client
+  }
+
+
+function download_runner_config() {
+    git clone --depth 1 https://$GITLAB_USER:$GITLAB_PASSWORD@git.alfresco.com/Build/bamboo-agent-config.git
+  }
+
+  function setup_maven_settings() {
+    mkdir $HOME/.m2
+    cp ./bamboo-agent-config/.m2/settings* $HOME/.m2/
+  }
+
+
+  function setup_github_ssh() {
+    apk add -U openssh
+    mkdir ~/.ssh
+    cp ./bamboo-agent-config/keys/idgit_rsa ~/.ssh/id_rsa
+    chmod 400 ~/.ssh/id_rsa
+    git config --global user.name "alfresco-build"
+    git config --global user.email "alfresco-build@alfresco.com"
+    export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa"
+    ssh-keyscan github.com >> ~/.ssh/known_hosts
+  }
+
+  function setup_build_helm_tools() {
+    git clone --depth 1 https://$GITLAB_USER:$GITLAB_PASSWORD@git.alfresco.com/platform-services/bamboo-build-helm-tools.git
+    export HELM_TOOLS_HOME="./bamboo-build-helm-tools"
+  }
+
+
+  function publish_helm_chart() {
+    export git_repo="git@github.com:Alfresco/charts.git"
+    export git_repo_subdir="incubator"
+    export helm_chart_repo="http://kubernetes-charts.alfresco.com/${git_repo_subdir}/"
+    export chart_source_dirs="helm/${CI_PROJECT_NAME}"
+    ${HELM_TOOLS_HOME}/bin/helm-updater.sh
+  }
+
+before_script:
+  - *auto_devops
