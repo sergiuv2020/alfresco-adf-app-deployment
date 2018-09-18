@@ -4,8 +4,8 @@ registryPullSecrets: quay-registry-secret
 adminApp:
   replicacount: 1
   image:
-    repository: docker-internal.alfresco.com/adf/process-admin
-    tag: "development-103"
+    repository: quay.io/alfresco/alfresco-process-admin
+    tag: "develop"
     pullPolicy: IfNotPresent
     internalPort: 3000
   service:
@@ -18,8 +18,8 @@ adminApp:
 modelerApp:
   replicacount: 1
   image:
-    repository: docker-internal.alfresco.com/adf/alfresco-modeler-app
-    tag: "development-144"
+    repository: quay.io/alfresco/alfresco-modeler-app
+    tag: "develop"
     pullPolicy: IfNotPresent
     internalPort: 80
   service:
