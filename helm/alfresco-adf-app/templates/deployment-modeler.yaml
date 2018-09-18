@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "adf-app.fullname" . }}-modeler
+  labels:
+    app: {{ template "adf-app.fullname" . }}-modeler
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "adf-app.fullname" . }}-modeler
+        release: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.registryPullSecrets }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.modelerApp.image.repository }}:{{ .Values.modelerApp.image.tag }}"
+          imagePullPolicy: {{ .Values.modelerApp.image.pullPolicy }}
+          resources:
+{{ toYaml .Values.modelerApp.resources | indent 12 }}
+    {{- if .Values.modelerApp.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.modelerApp.nodeSelector | indent 8 }}
+    {{- end }}
