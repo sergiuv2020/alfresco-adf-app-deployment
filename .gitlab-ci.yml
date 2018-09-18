@@ -4,12 +4,6 @@
 # In order to deploy, you must have a Kubernetes cluster configured either
 # via a project integration, or via group/project variables.
 
-image: alpine:latest
-
-variables:
-  KUBERNETES_VERSION: 1.8.6
-  HELM_VERSION: 2.8.2
-
 stages:
   - build
 
