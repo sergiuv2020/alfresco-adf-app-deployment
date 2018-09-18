@@ -1,11 +1,118 @@
 # Auto DevOps
 # This CI/CD configuration provides a standard pipeline for
-# * building helm chart and push it to Alfresco incubator repo
+# * building a Docker image,
+# * storing the image in the container registry,
+# * running tests,
+# * running code quality analysis,
+# * continuous deployment to development
+# * and manual undeploy
+#
 # In order to deploy, you must have a Kubernetes cluster configured either
 # via a project integration, or via group/project variables.
 
+image: alpine:latest
+
+variables:
+  KUBERNETES_VERSION: 1.8.6
+  HELM_VERSION: 2.8.2
+
 stages:
   - build
+  - test
+  - deploy
+  - cleanup
+
+build:
+  stage: build
+  image: docker:git
+  services:
+  - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+  script:
+    - setup_docker
+    - download_runner_config
+    - setup_maven_settings
+    - build
+  only:
+    - branches
+
+test:
+  stage: test
+  image: maven:3.5-jdk-8
+  cache:
+    paths:
+      - .m2/repository
+  script:
+    - download_runner_config
+    - setup_maven_settings
+    - mvn verify -B
+  only:
+    - branches
+
+codequality:
+  image: docker:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+  allow_failure: true
+  services:
+    - docker:dind
+  script:
+    - setup_docker
+    - codeclimate
+  artifacts:
+    paths: [codeclimate.json]
+
+.deploy_common: &deploy_common
+  stage: deploy
+  script:
+    - install_dependencies
+    - download_chart
+    - ensure_namespace
+    - create_secret
+    - delete
+    - deploy
+  environment:
+    name: dev
+    url: $INGRESS_URL/$SERVICE_NAME
+    on_stop: undeploy
+  only:
+    kubernetes: active
+
+deploy_develop:
+  <<: *deploy_common
+  only:
+    refs:
+      - develop
+
+deploy_manual:
+  <<: *deploy_common
+  when: manual
+  only:
+    refs:
+      - branches
+  except:
+    - develop
+    - master
+
+undeploy:
+  stage: cleanup
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - install_dependencies
+    - delete
+  environment:
+    name: dev
+    action: stop
+  when: manual
+  allow_failure: true
+  only:
+    refs:
+      - branches
+    kubernetes: active
+  except:
+    - master
 
 publish_chart:
   stage: deploy
@@ -20,13 +127,54 @@ publish_chart:
     refs:
       - develop
 
-#---------------------------------------
-
+# ---------------------------------------------------------------------------
 
 .auto_devops: &auto_devops |
   # Auto DevOps variables and functions
+  [[ "$TRACE" ]] && set -x
+  export CI_APPLICATION_REPOSITORY=$CI_REGISTRY_IMAGE
+  export CI_APPLICATION_TAG=$CI_COMMIT_REF_SLUG
+  export SERVICE_NAME="${CI_PROJECT_NAME}"
+  export CHART_NAME="${SERVICE_NAME}"
+  export RELEASE_NAME="${SERVICE_NAME}-${CI_ENVIRONMENT_SLUG}"
 
- function install_dependencies() {
+  function codeclimate() {
+    cc_opts="--env CODECLIMATE_CODE="$PWD" \
+             --volume "$PWD":/code \
+             --volume /var/run/docker.sock:/var/run/docker.sock \
+             --volume /tmp/cc:/tmp/cc"
+
+    docker run ${cc_opts} codeclimate/codeclimate:0.73.0 analyze -f json > codeclimate.json
+  }
+
+  function deploy() {
+    export SERVICE_NAME="${CI_PROJECT_NAME}"
+    export KUBE_NAMESPACE="${KUBE_NAMESPACE:-default}"
+    export APS_KUBE_NAMESPACE="${APS_KUBE_NAMESPACE:-default}"
+    export IMAGE_REPOSITORY="alfresco/${SERVICE_NAME}"
+    export IMAGE_TAG=${IMAGE_TAG:-latest}
+    export DOCKER_REGISTRY="${DOCKER_REGISTRY:-quay.io}"
+    export INGRESS_HOSTNAME="${INGRESS_HOSTNAME:-$(kubectl get service -n "${APS_KUBE_NAMESPACE}" -l 'app=nginx-ingress,component=controller' -o jsonpath='{..hostname}')}"
+
+    echo using INGRESS_HOSTNAME=${INGRESS_HOSTNAME}
+    echo install/upgrade chart=${CHART_NAME} release=${RELEASE_NAME}
+
+    env
+
+    helm upgrade --install \
+      --wait \
+      --set nameOverride="$CI_ENVIRONMENT_SLUG" \
+      --set image.repository="$CI_APPLICATION_REPOSITORY" \
+      --set image.tag="$CI_APPLICATION_TAG" \
+      --set image.pullPolicy=Always \
+      --set activiti.keycloak.url="http://${INGRESS_HOSTNAME}/auth" \
+      --namespace="$KUBE_NAMESPACE" \
+      --version="$CI_PIPELINE_ID-$CI_JOB_ID" \
+      "${RELEASE_NAME}" \
+      helm/${CHART_NAME}
+  }
+
+  function install_dependencies() {
     apk add -U openssl curl tar gzip bash ca-certificates git openssh
     wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
     wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-2.23-r3.apk
@@ -42,8 +190,15 @@ publish_chart:
     kubectl version --client
   }
 
+  function setup_docker() {
+    if ! docker info &>/dev/null; then
+      if [ -z "$DOCKER_HOST" -a "$KUBERNETES_PORT" ]; then
+        export DOCKER_HOST='tcp://localhost:2375'
+      fi
+    fi
+  }
 
-function download_runner_config() {
+  function download_runner_config() {
     git clone --depth 1 https://$GITLAB_USER:$GITLAB_PASSWORD@git.alfresco.com/Build/bamboo-agent-config.git
   }
 
@@ -52,6 +207,59 @@ function download_runner_config() {
     cp ./bamboo-agent-config/.m2/settings* $HOME/.m2/
   }
 
+  function download_chart() {
+    helm init --client-only
+
+    helm repo add alfresco-stable http://kubernetes-charts.alfresco.com/stable
+    helm repo add alfresco-incubator http://kubernetes-charts.alfresco.com/incubator
+    helm dependency update helm/${CHART_NAME}
+    helm dependency build helm/${CHART_NAME}
+  }
+
+  function ensure_namespace() {
+    kubectl describe namespace "$KUBE_NAMESPACE" || kubectl create namespace "$KUBE_NAMESPACE"
+  }
+
+  function build() {
+    echo "Building Dockerfile-based application..."
+    docker build \
+      --label "GIT_COMMIT=$CI_COMMIT_SHA" \
+      --build-arg M2_SETTINGS_FILE="$(cat ~/.m2/settings.xml)" \
+      --build-arg M2_SETTINGS_SECURITY_FILE="$(cat ~/.m2/settings-security.xml)" \
+      -t "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" .
+
+    if [[ -n "$CI_REGISTRY_USER" ]]; then
+      echo "Logging to GitLab Container Registry with CI credentials..."
+      docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+      echo ""
+    fi
+
+    echo "Pushing to GitLab Container Registry..."
+    docker push "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG"
+    echo ""
+  }
+
+  function create_secret() {
+    export DOCKER_REGISTRY_SECRET_NAME="${DOCKER_REGISTRY_SECRET_NAME:-gitlab-registry}"
+    export DOCKER_REGISTRY="$CI_REGISTRY"
+    export DOCKER_REGISTRY_USER="$CI_REGISTRY_USER"
+    export DOCKER_REGISTRY_PASSWORD="$CI_REGISTRY_PASSWORD"
+    export DOCKER_REGISTRY_EMAIL="$GITLAB_USER_EMAIL"
+
+    kubectl create secret -n "${KUBE_NAMESPACE}" \
+      docker-registry ${DOCKER_REGISTRY_SECRET_NAME} \
+        --docker-server="${DOCKER_REGISTRY}" \
+        --docker-username="${DOCKER_REGISTRY_USER}" \
+        --docker-password="${DOCKER_REGISTRY_PASSWORD}" \
+        --docker-email="${DOCKER_REGISTRY_EMAIL}" \
+        -o yaml --dry-run | kubectl replace -n "${KUBE_NAMESPACE}" --force -f -
+
+    kubectl patch serviceaccount default -n "${KUBE_NAMESPACE}" -p "{\"imagePullSecrets\": [{\"name\": \"${DOCKER_REGISTRY_SECRET_NAME}\"}]}"
+  }
+
+  function delete() {
+    helm delete --purge "${RELEASE_NAME}" || true
+  }
 
   function setup_github_ssh() {
     apk add -U openssh
@@ -68,7 +276,6 @@ function download_runner_config() {
     git clone --depth 1 https://$GITLAB_USER:$GITLAB_PASSWORD@git.alfresco.com/platform-services/bamboo-build-helm-tools.git
     export HELM_TOOLS_HOME="./bamboo-build-helm-tools"
   }
-
 
   function publish_helm_chart() {
     export git_repo="git@github.com:Alfresco/charts.git"
