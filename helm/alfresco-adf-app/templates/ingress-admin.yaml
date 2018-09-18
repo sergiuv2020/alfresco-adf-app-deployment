@@ -17,4 +17,4 @@ spec:
       - path: {{ .Values.adminApp.ingress.path }}
         backend:
           serviceName: {{ template "adf-app.fullname" . }}-admin
-          servicePort: {{ .Values.adminApp.service.externalPort }}
+          servicePort: {{ .Values.adminApp.service.nodePort }}

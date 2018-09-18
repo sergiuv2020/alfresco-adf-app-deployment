@@ -7,10 +7,11 @@ adminApp:
     repository: docker-internal.alfresco.com/adf/process-admin
     tag: "development-103"
     pullPolicy: IfNotPresent
+    internalPort: 3000
   service:
     name: adf-admin
-    type: ClusterIP
-    externalPort: 3000
+    type: NodePort
+    nodePort: 3000
   ingress:
     path: /apa-app
 
@@ -20,10 +21,13 @@ modelerApp:
     repository: docker-internal.alfresco.com/adf/alfresco-modeler-app
     tag: "development-144"
     pullPolicy: IfNotPresent
+    internalPort: 80
   service:
     name: adf-modeler
-    type: ClusterIP
-    externalPort: 80
+    type: NodePort
+    nodePort: 80
   ingress:
-    path: /
+    path: /ama-app
+
+
 

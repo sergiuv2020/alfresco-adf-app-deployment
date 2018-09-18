@@ -17,4 +17,4 @@ spec:
       - path: {{ .Values.modelerApp.ingress.path }}
         backend:
           serviceName: {{ template "adf-app.fullname" . }}-modeler
-          servicePort: {{ .Values.modelerApp.service.externalPort }}
+          servicePort: {{ .Values.modelerApp.service.nodePort }}

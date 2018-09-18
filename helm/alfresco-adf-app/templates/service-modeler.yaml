@@ -10,8 +10,8 @@ metadata:
 spec:
   type: {{ .Values.modelerApp.service.type }}
   ports:
-    - port: {{ .Values.modelerApp.service.externalPort }}
-      targetPort: {{ .Values.modelerApp.image.externalPort }}
+    - port: {{ .Values.modelerApp.service.nodePort }}
+      targetPort: {{ .Values.modelerApp.image.internalPort }}
       name: {{ .Values.modelerApp.service.name }}
   selector:
     app: {{ template "adf-app.fullname" . }}-modeler

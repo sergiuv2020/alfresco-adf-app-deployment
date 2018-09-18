@@ -10,8 +10,8 @@ metadata:
 spec:
   type: {{ .Values.adminApp.service.type }}
   ports:
-    - port: {{ .Values.adminApp.service.externalPort }}
-      targetPort: {{ .Values.adminApp.image.externalPort }}
+    - port: {{ .Values.adminApp.service.nodePort }}
+      targetPort: {{ .Values.adminApp.image.internalPort }}
       name: {{ .Values.adminApp.service.name }}
   selector:
     app: {{ template "adf-app.fullname" . }}-admin
