@@ -10,7 +10,7 @@ metadata:
 spec:
   type: {{ .Values.modelerApp.service.type }}
   ports:
-    - port: {{ .Values.modelerApp.service.nodePort }}
+    - port: {{ .Values.modelerApp.service.externalPort }}
       targetPort: {{ .Values.modelerApp.image.internalPort }}
       name: {{ .Values.modelerApp.service.name }}
   selector:

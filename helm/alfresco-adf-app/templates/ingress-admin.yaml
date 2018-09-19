@@ -12,9 +12,10 @@ metadata:
 
 spec:
   rules:
-  - http:
+  - host: {{ .Values.adminApp.ingress.hostName }}
+    http:
       paths:
       - path: {{ .Values.adminApp.ingress.path }}
         backend:
           serviceName: {{ template "adf-app.fullname" . }}-admin
-          servicePort: {{ .Values.adminApp.service.nodePort }}
+          servicePort: {{ .Values.adminApp.service.externalPort }}

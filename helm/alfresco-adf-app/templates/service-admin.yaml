@@ -10,7 +10,7 @@ metadata:
 spec:
   type: {{ .Values.adminApp.service.type }}
   ports:
-    - port: {{ .Values.adminApp.service.nodePort }}
+    - port: {{ .Values.adminApp.service.externalPort }}
       targetPort: {{ .Values.adminApp.image.internalPort }}
       name: {{ .Values.adminApp.service.name }}
   selector:

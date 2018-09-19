@@ -12,9 +12,10 @@ metadata:
 
 spec:
   rules:
-  - http:
+  - host: {{ .Values.modelerApp.ingress.hostName }}
+    http:
       paths:
       - path: {{ .Values.modelerApp.ingress.path }}
         backend:
           serviceName: {{ template "adf-app.fullname" . }}-modeler
-          servicePort: {{ .Values.modelerApp.service.nodePort }}
+          servicePort: {{ .Values.modelerApp.service.externalPort }}

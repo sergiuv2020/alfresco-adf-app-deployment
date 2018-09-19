@@ -7,13 +7,13 @@ adminApp:
     repository: quay.io/alfresco/alfresco-process-admin
     tag: "develop"
     pullPolicy: IfNotPresent
-    internalPort: 3000
   service:
     name: adf-admin
-    type: NodePort
-    nodePort: 3000
+    type: ClusterIP
+    externalPort: 80
   ingress:
-    path: /apa-app
+    path: /
+    hostName: apa.local
 
 modelerApp:
   replicacount: 1
@@ -21,13 +21,14 @@ modelerApp:
     repository: quay.io/alfresco/alfresco-modeler-app
     tag: "develop"
     pullPolicy: IfNotPresent
-    internalPort: 80
   service:
     name: adf-modeler
-    type: NodePort
-    nodePort: 80
+    type: ClusterIP
+    externalPort: 80
   ingress:
-    path: /ama-app
+    path: /
+    hostName: ama.local
+
 
 
 
