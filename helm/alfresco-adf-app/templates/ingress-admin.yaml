@@ -12,7 +12,8 @@ metadata:
 
 spec:
   rules:
-  - http:
+  - host: {{ .Values.adminApp.ingress.hostName }}
+    http:
       paths:
       - path: {{ .Values.adminApp.ingress.path }}
         backend:

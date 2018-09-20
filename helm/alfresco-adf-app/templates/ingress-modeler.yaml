@@ -12,7 +12,8 @@ metadata:
 
 spec:
   rules:
-  - http:
+  - host: {{ .Values.modelerApp.ingress.hostName }}
+    http:
       paths:
       - path: {{ .Values.modelerApp.ingress.path }}
         backend:
