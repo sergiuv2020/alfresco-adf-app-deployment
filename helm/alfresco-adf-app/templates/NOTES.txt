@@ -1,11 +1,11 @@
 
-{{ if .Values.dnsaddress }}
+{{ if .Values.adminApp.ingress.hostName }}
 
 You can access ADF frontend process admin and modeler app using this address:
 
-  Alfresco Adf frontend Modeler App: {{ .Values.dnsaddress }}/ama-app
+  Alfresco Adf frontend Modeler App: {{ .Values.adminApp.ingress.hostName }}
 
-  Alfresco Adf frontend process admin App: {{ .Values.dnsaddress }}/apa-app
+  Alfresco Adf frontend process admin App: {{ .Values.modelerApp.ingress.hostName }}
 
 {{ else }}
 
