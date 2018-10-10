@@ -1,34 +1,14 @@
 replicaCount: 1
 registryPullSecrets: quay-registry-secret
 
-adminApp:
-  replicacount: 1
-  image:
-    repository: quay.io/alfresco/alfresco-process-admin
-    tag: "develop"
-    pullPolicy: IfNotPresent
-  service:
-    name: adf-admin
-    type: ClusterIP
-    externalPort: 80
-  ingress:
-    path: /
-    hostName: apa.local
-
-modelerApp:
-  replicacount: 1
-  image:
-    repository: quay.io/alfresco/alfresco-modeler-app
-    tag: "develop"
-    pullPolicy: IfNotPresent
-  service:
-    name: adf-modeler
-    type: ClusterIP
-    externalPort: 80
-  ingress:
-    path: /
-    hostName: ama.local
-
-
-
-
+image:
+  repository: quay.io/alfresco/alfresco-adf-app
+  tag: latest
+  pullPolicy: IfNotPresent
+service:
+  name: adf-app
+  type: ClusterIP
+  port: 80
+ingress:
+  path: /
+  hostName: adf-app.local

@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ template "adf-app.fullname" . }}-admin
+  name: {{ template "alfresco-adf-app.fullname" . }}
   annotations:
     kubernetes.io/ingress.class: "nginx"
     ingress.kubernetes.io/ssl-redirect: "false"
@@ -9,13 +9,12 @@ metadata:
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-headers: "X-Forwarded-For, X-Forwarded-Proto, X-Forwarded-Port, X-Forwarded-Prefix, Authorization, Content-Type"
     nginx.ingress.kubernetes.io/x-forwarded-prefix: "true"
-
 spec:
   rules:
-  - host: {{ .Values.adminApp.ingress.hostName }}
+  - host: {{ .Values.ingress.hostName }}
     http:
       paths:
-      - path: {{ .Values.adminApp.ingress.path }}
+      - path: {{ .Values.ingress.path }}
         backend:
-          serviceName: {{ template "adf-app.fullname" . }}-admin
-          servicePort: {{ .Values.adminApp.service.externalPort }}
+          serviceName: {{ template "alfresco-adf-app.fullname" . }}
+          servicePort: {{ .Values.service.port }}
