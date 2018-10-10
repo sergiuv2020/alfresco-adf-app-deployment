@@ -11,8 +11,12 @@ metadata:
     nginx.ingress.kubernetes.io/x-forwarded-prefix: "true"
 spec:
   rules:
+  {{- if .Values.ingress.hostName }}
   - host: {{ .Values.ingress.hostName }}
     http:
+  {{- else }}
+  - http:
+  {{- end }}
       paths:
       - path: {{ .Values.ingress.path }}
         backend:
