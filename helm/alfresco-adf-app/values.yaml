@@ -11,4 +11,3 @@ service:
   port: 80
 ingress:
   path: /
-  hostName: adf-app.local

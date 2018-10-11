@@ -3,8 +3,9 @@
 helm upgrade --install \
   --set registryPullSecrets=quay-registry-secret \
   --set image.repository=quay.io/alfresco/alfresco-modeler-app \
-  --set ingress.hostName= \
+  --set image.tag=latest \
+  --set image.pullPolicy=Always \
   --set ingress.path=/alfresco-modeler-app \
-  --set env.BASE_PATH=/alfresco-modeler-app/ \
-  --set env.IDENTITY_SERVICE_URL="https://localhost/auth" \
+  --set env.IDENTITY_SERVICE_URL="https://aps2test.envalfresco.com/auth" \
+  --set env.API_URL="https://aps2test.envalfresco.com" \
   alfresco-modeler-app ./helm/alfresco-adf-app

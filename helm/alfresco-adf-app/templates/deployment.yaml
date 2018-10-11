@@ -24,7 +24,12 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- with .Values.env }}
           env:
-{{ toYaml . | indent 12 }}
+          {{if ne .Values.ingress.path "/"}}
+          - name: BASE_PATH
+            value: "./"
+          {{end}}
+          {{- range $key, $val := .Values.env }}
+          - name: {{ $key }}
+            value: {{ $val }}
           {{- end }}
