@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-helm upgrade --install \
+helm upgrade --install --wait \
   --set registryPullSecrets=quay-registry-secret \
   --set image.repository=quay.io/alfresco/alfresco-modeler-app \
   --set image.tag=latest \

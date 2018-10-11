@@ -27,7 +27,7 @@ spec:
           env:
           {{if ne .Values.ingress.path "/"}}
           - name: BASE_PATH
-            value: "./"
+            value: "{{ .Values.ingress.path }}/"
           {{end}}
           {{- range $key, $val := .Values.env }}
           - name: {{ $key }}
