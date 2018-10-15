@@ -22,12 +22,18 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}{{ if .Values.image.tag }}:{{ .Values.image.tag }}{{- end}}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
           {{if ne .Values.ingress.path "/"}}
           - name: BASE_PATH
             value: "{{ .Values.ingress.path }}/"
+          - name: APP_CONFIG_OAUTH2_REDIRECT_SILENT_IFRAME_URI
+            value: "{{ .Values.ingress.path }}/assets/silent-refresh.html"
+          - name: APP_CONFIG_OAUTH2_REDIRECT_LOGIN
+            value: "{{ .Values.ingress.path }}"
+          - name: APP_CONFIG_OAUTH2_REDIRECT_LOGOUT
+            value: "{{ .Values.ingress.path }}"
           {{end}}
           {{- range $key, $val := .Values.env }}
           - name: {{ $key }}
