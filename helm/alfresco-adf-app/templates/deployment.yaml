@@ -36,6 +36,6 @@ spec:
             value: "{{ .Values.ingress.path }}"
           {{end}}
           {{- range $key, $val := .Values.env }}
-          - name: {{ $key }}
-            value: {{ $val }}
+          - name: "{{ $key }}"
+            value: "{{ $val }}"
           {{- end }}

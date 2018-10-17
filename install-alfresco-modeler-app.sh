@@ -9,4 +9,5 @@ helm upgrade --install --wait \
   --set env.APP_CONFIG_AUTH_TYPE="OAUTH" \
   --set env.APP_CONFIG_OAUTH2_HOST="http://localhost-k8s/auth/realms/springboot" \
   --set env.APP_CONFIG_OAUTH2_CLIENTID="activiti" \
+  --set env.APP_CONFIG_OAUTH2_SILENT_LOGIN="true" \
   alfresco-modeler-app ./helm/alfresco-adf-app
