@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
 
-BASE_URL="/alfresco-content-app"
-
 helm upgrade --install --wait \
   --set registryPullSecrets=quay-registry-secret \
   --set image.repository=quay.io/alfresco/alfresco-content-app \
   --set image.tag=0.1.5-beta \
   --set image.pullPolicy=Always \
-  --set ingress.path="${BASE_URL}" \
+  --set ingress.path="/alfresco-content-app" \
   --set env.BASEPATH=./ \
-  --set env.API_URL="http://localhost" \
+  --set env.API_URL="http://localhost-k8s" \
   --set env.APP_CONFIG_AUTH_TYPE="OAUTH" \
-  --set env.APP_CONFIG_OAUTH2_HOST="http://localhost/auth/realms/springboot" \
+  --set env.APP_CONFIG_OAUTH2_HOST="http://localhost-k8s/auth/realms/springboot" \
   --set env.APP_CONFIG_OAUTH2_CLIENTID="activiti" \
   alfresco-content-app ./helm/alfresco-adf-app
