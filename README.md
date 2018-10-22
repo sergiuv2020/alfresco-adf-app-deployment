@@ -6,16 +6,21 @@ For alfresco-modeler-app:
 
 ```
 helm install --name alfresco-modeler-app \
-    --set image.repository=quay.io/alfresco/alfresco-modeler-app \ 
-    --set ingress.hostName=ama-aps2dev.envalfresco.com \
-    ./helm/alfresco-adf-app
+  --set image.repository=quay.io/alfresco/alfresco-modeler-app \
+  ./helm/alfresco-adf-app
 ```
 
 For alfresco-admin-app:
 
 ```
 helm install --name alfresco-admin-app \
-    --set image.repository=quay.io/alfresco/alfresco-admin-app \ 
-    --set ingress.hostName=apa-aps2dev.envalfresco.com \
-    ./helm/alfresco-adf-app
+  --set image.repository=quay.io/alfresco/alfresco-admin-app \
+  ./helm/alfresco-adf-app
+```
+
+Some scripts are provided for APS2 apps:
+
+```
+ENV_URL=http://aps2test.envalfresco.com \
+  ./install-alfresco-{admin,modeler,content,process}-app.sh
 ```
