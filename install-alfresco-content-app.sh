@@ -3,9 +3,8 @@
 ENV_URL=${ENV_URL:-"http://localhost-k8s"}
 
 helm upgrade --install --wait \
-  --set registryPullSecrets=quay-registry-secret \
-  --set image.repository=quay.io/alfresco/alfresco-content-app \
-  --set image.tag=0.1.5-beta \
+  --set image.repository=alfresco/alfresco-content-app \
+  --set image.tag=master-latest \
   --set image.pullPolicy=Always \
   --set ingress.path="/alfresco-content-app" \
   --set env.BASEPATH=./ \
