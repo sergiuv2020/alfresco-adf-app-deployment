@@ -2,7 +2,7 @@
 
 ENV_URL=${ENV_URL:-"http://localhost-k8s"}
 
-helm upgrade --install --wait \
+helm upgrade --install --wait ${HELM_OPTS} \
   --set registryPullSecrets=quay-registry-secret \
   --set image.repository=quay.io/alfresco/alfresco-process-workspace-app \
   --set image.tag=dev-mvitale-DW-913-migration-aps-2.0 \

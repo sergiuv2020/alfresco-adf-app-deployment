@@ -2,7 +2,7 @@
 
 ENV_URL=${ENV_URL:-"http://localhost-k8s"}
 
-helm upgrade --install --wait \
+helm upgrade --install --wait ${HELM_OPTS} \
   --set registryPullSecrets=quay-registry-secret \
   --set image.repository=quay.io/alfresco/alfresco-modeling-app \
   --set image.pullPolicy=Always \

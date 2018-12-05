@@ -2,7 +2,7 @@
 
 ENV_URL=${ENV_URL:-"http://localhost-k8s"}
 
-helm upgrade --install --wait \
+helm upgrade --install --wait ${HELM_OPTS} \
   --set image.repository=alfresco/alfresco-content-app \
   --set image.tag=master-latest \
   --set image.pullPolicy=Always \
