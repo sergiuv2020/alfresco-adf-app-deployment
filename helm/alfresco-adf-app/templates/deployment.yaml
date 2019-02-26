@@ -31,9 +31,9 @@ spec:
           - name: APP_CONFIG_OAUTH2_REDIRECT_SILENT_IFRAME_URI
             value: "{{ .Values.ingress.path }}/assets/silent-refresh.html"
           - name: APP_CONFIG_OAUTH2_REDIRECT_LOGIN
-            value: "{{ .Values.ingress.path }}"
+            value: "{{ .Values.ingress.path }}/"
           - name: APP_CONFIG_OAUTH2_REDIRECT_LOGOUT
-            value: "{{ .Values.ingress.path }}"
+            value: "{{ .Values.ingress.path }}/"
           {{end}}
           {{- range $key, $val := .Values.env }}
           - name: {{ $key | quote }}
