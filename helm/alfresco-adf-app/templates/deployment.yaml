@@ -47,5 +47,5 @@ spec:
 {{ include "common.extra-env" . | indent 8 }}
         {{- range $key, $val := .Values.env }}
         - name: {{ $key | quote }}
-          value: {{ $val | quote }}
+          value: {{ tpl $val $ | quote }}
         {{- end }}
