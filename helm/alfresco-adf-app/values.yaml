@@ -3,7 +3,7 @@ global:
     ## Configure default domain for gateway host, i.e. "{{ .Relase.Name }}.127.0.0.1.nip.io"
     domain: "localhost-k8s"
     ## Confige default gateway host Helm template, i.e. "activiti-cloud-gateway.{{ .Values.global.gateway.domain }}"
-    host: "activiti-cloud-gateway.{{ .Values.global.gateway.domain }}/{{ .Release.Name }}"
+    host: "activiti-cloud-gateway.{{ .Values.global.gateway.domain }}"
     ## Toggle creating http or https ingress rules, supports literal or boolean values
     http: true
     ## Used to enable automatic TLS for ingress if http is false
@@ -29,9 +29,9 @@ global:
   registryPullSecrets: []
 
   ## Adds global extraEnv to deployments
-  extraEnv: |
-    - name: "APP_CONFIG_AUTH_TYPE"
-      value: "OAUTH"
+  # extraEnv: |
+  #   - name: "APP_CONFIG_AUTH_TYPE"
+  #     value: "OAUTH"
 
 replicaCount: 1
 
@@ -57,4 +57,5 @@ ingress:
     nginx.ingress.kubernetes.io/cors-allow-headers: "X-Forwarded-For, X-Forwarded-Proto, X-Forwarded-Port, X-Forwarded-Prefix, Authorization, Content-Type"
     nginx.ingress.kubernetes.io/x-forwarded-prefix: "true"
 
-extraEnv: |
+env:
+  APP_CONFIG_AUTH_TYPE: "OAUTH"
