@@ -3,7 +3,7 @@ global:
     ## Configure default domain for gateway host, i.e. "{{ .Relase.Name }}.127.0.0.1.nip.io"
     domain: "localhost-k8s"
     ## Confige default gateway host Helm template, i.e. "activiti-cloud-gateway.{{ .Values.global.gateway.domain }}"
-    host: "activiti-cloud-gateway.{{ .Values.global.gateway.domain }}"
+    host: "activiti-cloud-gateway.{{ .Values.global.gateway.domain }}/{{ .Release.Name }}"
     ## Toggle creating http or https ingress rules, supports literal or boolean values
     http: true
     ## Used to enable automatic TLS for ingress if http is false
