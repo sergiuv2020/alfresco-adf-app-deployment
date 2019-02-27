@@ -1,5 +1,41 @@
+global:
+  gateway:
+    ## Configure default domain for gateway host, i.e. "{{ .Relase.Name }}.127.0.0.1.nip.io"
+    domain: "localhost-k8s"
+    ## Confige default gateway host Helm template, i.e. "activiti-cloud-gateway.{{ .Values.global.gateway.domain }}"
+    host: "activiti-cloud-gateway.{{ .Values.global.gateway.domain }}"
+    ## Toggle creating http or https ingress rules, supports literal or boolean values
+    http: true
+    ## Used to enable automatic TLS for ingress if http is false
+    tlsacme: false
+
+  keycloak:
+    ## Overrides gateway host configuration
+    url: ""
+    ## Configure default keycloak path
+    path: "/auth"
+    ## Configure default keycloak host template, i.e "activiti-keycloak.{{ .Values.global.gateway.domain }}"
+    host: "activiti-keycloak.{{ .Values.global.gateway.domain }}"
+
+    ## Configure default Keycloak realm
+    realm: "alfresco"
+    resource: "activiti"
+    client: "activiti"
+
+    ## Adds Keycloak extraEnv to deployments
+    extraEnv: ""
+
+  ## Configure pull secrets for all deployments
+  registryPullSecrets: []
+
+  ## Adds global extraEnv to deployments
+  extraEnv: |
+    - name: "APP_CONFIG_AUTH_TYPE"
+      value: "OAUTH"
+
 replicaCount: 1
-registryPullSecrets: quay-registry-secret
+
+registryPullSecrets: []
 
 image:
   repository: quay.io/alfresco/alfresco-adf-app
@@ -10,4 +46,15 @@ service:
   type: ClusterIP
   port: 80
 ingress:
-  path: /
+  enabled: true
+
+  path: /{{ .Values.service.name }}
+
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "X-Forwarded-For, X-Forwarded-Proto, X-Forwarded-Port, X-Forwarded-Prefix, Authorization, Content-Type"
+    nginx.ingress.kubernetes.io/x-forwarded-prefix: "true"
+
+extraEnv: |

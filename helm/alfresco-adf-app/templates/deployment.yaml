@@ -13,29 +13,39 @@ spec:
     metadata:
       labels:
         app: {{ template "alfresco-adf-app.fullname" . }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
         release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+{{- if .Values.podAnnotations }}
+      annotations:
+{{ toYaml .Values.podAnnotations | indent 8 }}
+{{- end }}
     spec:
-      {{- if .Values.registryPullSecrets }}
-      # only set this secret if a private docker registry variable is defined
+{{- if include "common.registry-pull-secrets" . }}
       imagePullSecrets:
-        - name: {{ .Values.registryPullSecrets }}
-      {{- end }}
+      {{- include "common.registry-pull-secrets" . | indent 6 }}
+{{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}{{ if .Values.image.tag }}:{{ .Values.image.tag }}{{- end}}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-          {{if ne .Values.ingress.path "/"}}
-          - name: BASE_PATH
-            value: "{{ .Values.ingress.path }}/"
-          - name: APP_CONFIG_OAUTH2_REDIRECT_SILENT_IFRAME_URI
-            value: "{{ .Values.ingress.path }}/assets/silent-refresh.html"
-          - name: APP_CONFIG_OAUTH2_REDIRECT_LOGIN
-            value: "{{ .Values.ingress.path }}/"
-          - name: APP_CONFIG_OAUTH2_REDIRECT_LOGOUT
-            value: "{{ .Values.ingress.path }}/"
-          {{end}}
-          {{- range $key, $val := .Values.env }}
-          - name: {{ $key | quote }}
-            value: {{ $val | quote }}
-          {{- end }}
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}{{ if .Values.image.tag }}:{{ .Values.image.tag }}{{- end}}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: APP_CONFIG_OAUTH2_HOST
+          value: {{ include "common.keycloak-url" . }}/realms/{{ include "common.keycloak-realm" . }}
+        - name: APP_CONFIG_OAUTH2_CLIENTID
+          value: {{ include "common.keycloak-client" . | quote }}
+        - name: API_URL
+          value: {{ include "common.gateway-url" $ | quote }}
+        - name: BASE_PATH
+          value: "{{  template "common.ingress-path" . }}/"
+        - name: APP_CONFIG_OAUTH2_REDIRECT_SILENT_IFRAME_URI
+          value: "{{  template "common.ingress-path" . }}/assets/silent-refresh.html"
+        - name: APP_CONFIG_OAUTH2_REDIRECT_LOGIN
+          value: "{{  template "common.ingress-path" . }}/"
+        - name: APP_CONFIG_OAUTH2_REDIRECT_LOGOUT
+          value: "{{  template "common.ingress-path" . }}/"
+{{ include "common.extra-env" . | indent 8 }}
+        {{- range $key, $val := .Values.env }}
+        - name: {{ $key | quote }}
+          value: {{ $val | quote }}
+        {{- end }}
