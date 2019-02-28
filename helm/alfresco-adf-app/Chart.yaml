@@ -1,6 +1,24 @@
 apiVersion: v1
-description: A Helm chart for deploy a generic ADF frontend application
 name: alfresco-adf-app
-version: 0.1.0
+description: A Helm chart for a generic Alfresco ADF frontend application
+version: 2.0.0
+appVersion: 2.0.0
+keywords:
+  - alfresco
+  - adf
+  - alfresco development framework
+  - content
+  - content services
+  - alfresco content services
+  - process
+  - process services
+  - alfresco process services
+  - activiti
+  - activiti enterprise
+  - alfresco activiti enterprise
+home: https://www.alfresco.com
 maintainers:
   - name: Alfresco
+sources:
+  - https://git.alfresco.com/process-services-public/alfresco-adf-app-deployment
+icon: https://avatars0.githubusercontent.com/u/391127?s=200&v=4
