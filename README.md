@@ -22,5 +22,5 @@ Some scripts are provided for APS2 apps:
 
 ```
 ENV_URL=http://aps2test.envalfresco.com \
-  ./install-alfresco-{admin,modeling,content,process}-app.sh
+  ./install-alfresco-{admin,modeling,content,process-workspace,digital-workspace}-app.sh
 ```

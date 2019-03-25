@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
 
-ENV_URL=${ENV_URL:-"http://localhost-k8s"}
+APP_NAME=alfresco-content-app
 
-helm upgrade --install --wait ${HELM_OPTS} \
-  --set image.repository=alfresco/alfresco-content-app \
-  --set image.tag=master-latest \
-  --set image.pullPolicy=Always \
-  --set ingress.path="/alfresco-content-app" \
-  --set env.BASEPATH=./ \
-  --set env.API_URL="${ENV_URL}" \
-  --set env.APP_CONFIG_AUTH_TYPE="OAUTH" \
-  --set env.APP_CONFIG_OAUTH2_HOST="${ENV_URL}/auth/realms/alfresco" \
-  --set env.APP_CONFIG_OAUTH2_CLIENTID="activiti" \
-  alfresco-content-app ./helm/alfresco-adf-app
+HELM_OPTS="
+  --set image.repository=alfresco/${APP_NAME}
+  --set image.tag=master-latest
+  --set image.pullPolicy=Always
+  --set env.BASEPATH=./
+  ${HELM_OPTS}
+"
+
+. $(dirname "$0")/install.sh

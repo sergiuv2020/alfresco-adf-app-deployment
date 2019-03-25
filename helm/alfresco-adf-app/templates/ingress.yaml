@@ -19,7 +19,7 @@ metadata:
 spec:
   rules:
     {{- if (include "common.ingress-host" .) }}
-    - host: {{ template "common.ingress-host" . }}
+    -{{- if eq .Values.ingress.defaultHostNameEnabled true }} host: {{ template "common.ingress-host" . }}{{- end }}
       http:
     {{- else }}
     - http:

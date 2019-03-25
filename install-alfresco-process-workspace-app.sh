@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
-APP_NAME=alfresco-admin-app
+APP_NAME=alfresco-process-workspace-app
 
+# set via values as there is no way to pass a string with spaces and quotes on the helm command line
 cat <<EOF > .values.yaml
   env:
-    APP_CONFIG_OAUTH2_ADMIN_HOST: "{{ include \"common.keycloak-url\" . }}/admin/realms/{{ include \"common.keycloak-realm\" . }}"
+    APP_CONFIG_BPM_HOST: "{{ include \"common.gateway-url\" . }}"
 EOF
+
 
 HELM_OPTS="
   -f .values.yaml
