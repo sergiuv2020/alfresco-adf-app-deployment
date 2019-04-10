@@ -11,7 +11,7 @@ EOF
 
 HELM_OPTS="
   -f .values.yaml
-  --set common.registryPullSecrets={quay-registry-secret}
+  --set global.registryPullSecrets={quay-registry-secret}
   --set image.repository=quay.io/alfresco/${APP_NAME}
   ${HELM_OPTS}
 "

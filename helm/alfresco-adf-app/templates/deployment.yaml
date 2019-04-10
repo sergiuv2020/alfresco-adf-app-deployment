@@ -26,26 +26,48 @@ spec:
       {{- include "common.registry-pull-secrets" . | indent 6 }}
 {{- end }}
       containers:
-      - name: {{ .Chart.Name }}
-        image: "{{ .Values.image.repository }}{{ if .Values.image.tag }}:{{ .Values.image.tag }}{{- end}}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        env:
-        - name: APP_CONFIG_OAUTH2_HOST
-          value: {{ include "common.keycloak-url" . }}/realms/{{ include "common.keycloak-realm" . }}
-        - name: APP_CONFIG_OAUTH2_CLIENTID
-          value: {{ include "common.keycloak-client" . | quote }}
-        - name: API_URL
-          value: {{ include "common.gateway-url" $ | quote }}
-        - name: BASE_PATH
-          value: "{{  template "common.ingress-path" . }}/"
-        - name: APP_CONFIG_OAUTH2_REDIRECT_SILENT_IFRAME_URI
-          value: "{{  template "common.gateway-url" . }}{{  template "common.ingress-path" . }}/assets/silent-refresh.html"
-        - name: APP_CONFIG_OAUTH2_REDIRECT_LOGIN
-          value: "{{  template "common.ingress-path" . }}/"
-        - name: APP_CONFIG_OAUTH2_REDIRECT_LOGOUT
-          value: "{{  template "common.ingress-path" . }}/"
-{{ include "common.extra-env" . | indent 8 }}
-        {{- range $key, $val := .Values.env }}
-        - name: {{ $key | quote }}
-          value: {{ tpl $val $ | quote }}
-        {{- end }}
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}{{ if .Values.image.tag }}:{{ .Values.image.tag }}{{- end}}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: API_URL
+              value: {{ include "common.gateway-url" $ | quote }}
+            - name: BASE_PATH
+              value: "{{  template "common.ingress-path" . }}/"
+            {{- if eq .Values.env.APP_CONFIG_AUTH_TYPE "OAUTH" }}
+            - name: APP_CONFIG_OAUTH2_HOST
+              value: {{ include "common.keycloak-url" . }}/realms/{{ include "common.keycloak-realm" . }}
+            - name: APP_CONFIG_OAUTH2_CLIENTID
+              value: {{ include "common.keycloak-client" . | quote }}
+            - name: APP_CONFIG_OAUTH2_REDIRECT_SILENT_IFRAME_URI
+              value: "{{  template "common.gateway-url" . }}{{  template "common.ingress-path" . }}/assets/silent-refresh.html"
+            - name: APP_CONFIG_OAUTH2_REDIRECT_LOGIN
+              value: "{{  template "common.ingress-path" . }}/"
+            - name: APP_CONFIG_OAUTH2_REDIRECT_LOGOUT
+              value: "{{  template "common.ingress-path" . }}/"
+            {{- end }}
+            {{ include "common.extra-env" . | indent 8 }}
+            {{- range $key, $val := .Values.env }}
+            - name: {{ $key | quote }}
+              value: {{ tpl $val $ | quote }}
+            {{- end }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probePath }}
+              port: {{ .Values.image.internalPort | default .Values.service.port }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probePath }}
+              port: {{ .Values.image.internalPort | default .Values.service.port }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            successThreshold: {{ .Values.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}

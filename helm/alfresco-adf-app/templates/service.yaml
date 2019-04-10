@@ -11,6 +11,9 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
+      {{- if .Values.image.internalPort }}
+      targetPort: {{ .Values.image.internalPort }}
+      {{- end }}
       protocol: TCP
   selector:
     app: {{ template "alfresco-adf-app.fullname" . }}
