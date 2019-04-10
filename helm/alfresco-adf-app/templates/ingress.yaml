@@ -10,6 +10,7 @@ metadata:
     heritage: {{ .Release.Service }}
   annotations:
     {{- include "common.ingress-annotations" . | indent 4 }}
+    nginx.ingress.kubernetes.io/rewrite-target: "/$1"
 spec:
   rules:
     {{- if (include "common.ingress-host" .) }}
@@ -19,7 +20,7 @@ spec:
     - http:
     {{- end }}
         paths:
-          - path: {{ include "common.ingress-path" . }}
+          - path: {{ include "common.ingress-path" . }}/?(.*)
             backend:
               serviceName: {{ template "alfresco-adf-app.fullname" . }}
               servicePort: {{ .Values.service.port }}
