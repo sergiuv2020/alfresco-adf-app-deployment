@@ -10,12 +10,6 @@ metadata:
     heritage: {{ .Release.Service }}
   annotations:
     {{- include "common.ingress-annotations" . | indent 4 }}
-    # Q: Do we still need to use rewrite target annotation?
-    {{- if ne (include "common.ingress-path" .) "/" }}
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      rewrite ^({{ template "common.ingress-path" . }})$ $1/ permanent;
-    {{- end }}
 spec:
   rules:
     {{- if (include "common.ingress-host" .) }}

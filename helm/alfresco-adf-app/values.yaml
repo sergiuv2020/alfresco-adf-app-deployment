@@ -49,12 +49,13 @@ ingress:
   enabled: true
   # when set to false the ingress hostname value will not be set to default gateway one but left empty
   defaultHostNameEnabled: true
-  path: /{{ .Values.service.name }}
+  path: /{{ .Values.service.name }}/?(.*)
 
   annotations:
     kubernetes.io/ingress.class: "nginx"
     ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: "/$1"
     nginx.ingress.kubernetes.io/cors-allow-headers: "X-Forwarded-For, X-Forwarded-Proto, X-Forwarded-Port, X-Forwarded-Prefix, Authorization, Content-Type"
     nginx.ingress.kubernetes.io/x-forwarded-prefix: "true"
 
