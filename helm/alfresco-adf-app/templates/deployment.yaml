@@ -46,11 +46,11 @@ spec:
             - name: APP_CONFIG_OAUTH2_REDIRECT_LOGOUT
               value: "{{  template "common.ingress-path" . }}/"
             {{- end }}
-            {{ include "common.extra-env" . | indent 8 }}
             {{- range $key, $val := .Values.env }}
             - name: {{ $key | quote }}
               value: {{ tpl $val $ | quote }}
             {{- end }}
+{{ include "common.extra-env" . | indent 12 }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
           readinessProbe:
