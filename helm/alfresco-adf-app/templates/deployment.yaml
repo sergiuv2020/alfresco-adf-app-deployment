@@ -33,18 +33,18 @@ spec:
             - name: API_URL
               value: {{ include "common.gateway-url" $ | quote }}
             - name: BASE_PATH
-              value: "{{  template "common.ingress-path" . }}/"
+              value: {{ include "common.ingress-path" . }}{{- if ne (include "common.ingress-path" .) "/" }}/{{- end }}
             {{- if eq .Values.env.APP_CONFIG_AUTH_TYPE "OAUTH" }}
             - name: APP_CONFIG_OAUTH2_HOST
-              value: {{ include "common.keycloak-url" . }}/realms/{{ include "common.keycloak-realm" . }}
+              value: {{ include "common.gateway-proto" . }}://{{ tpl (default (include "common.gateway-host" .) .Values.global.keycloak.host) . }}{{ include "common.keycloak-path" . }}/realms/{{ include "common.keycloak-realm" . }}
             - name: APP_CONFIG_OAUTH2_CLIENTID
               value: {{ include "common.keycloak-client" . | quote }}
             - name: APP_CONFIG_OAUTH2_REDIRECT_SILENT_IFRAME_URI
-              value: "{{  template "common.gateway-url" . }}{{  template "common.ingress-path" . }}/assets/silent-refresh.html"
+              value: {{ include "common.gateway-proto" . }}://{{ include "common.ingress-host" . }}{{ include "common.ingress-path" . }}{{- if ne (include "common.ingress-path" .) "/" }}/{{- end }}assets/silent-refresh.html
             - name: APP_CONFIG_OAUTH2_REDIRECT_LOGIN
-              value: "{{  template "common.ingress-path" . }}/"
+              value: {{ include "common.ingress-path" . }}{{- if ne (include "common.ingress-path" .) "/" }}/{{- end }}
             - name: APP_CONFIG_OAUTH2_REDIRECT_LOGOUT
-              value: "{{  template "common.ingress-path" . }}/"
+              value: {{ include "common.ingress-path" . }}{{- if ne (include "common.ingress-path" .) "/" }}/{{- end }}
             {{- end }}
             {{- range $key, $val := .Values.env }}
             - name: {{ $key | quote }}

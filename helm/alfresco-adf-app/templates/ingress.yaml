@@ -20,7 +20,7 @@ spec:
     - http:
     {{- end }}
         paths:
-          - path: {{ include "common.ingress-path" . }}/?(.*)
+          - path: {{ include "common.ingress-path" . }}{{- if ne (include "common.ingress-path" .) "/" }}/{{- end}}?(.*)
             backend:
               serviceName: {{ template "alfresco-adf-app.fullname" . }}
               servicePort: {{ .Values.service.port }}
