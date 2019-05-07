@@ -4,7 +4,7 @@ APP_NAME=alfresco-admin-app
 
 cat <<EOF > .values.yaml
   env:
-    APP_CONFIG_OAUTH2_ADMIN_HOST: "{{ include \"common.keycloak-url\" . }}/admin/realms/{{ include \"common.keycloak-realm\" . }}"
+    APP_CONFIG_IDENTITY_HOST: "{{ include \"common.keycloak-url\" . }}/admin/realms/{{ include \"common.keycloak-realm\" . }}"
 EOF
 
 HELM_OPTS="
