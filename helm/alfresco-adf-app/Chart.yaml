@@ -20,5 +20,5 @@ home: https://www.alfresco.com
 maintainers:
   - name: Alfresco
 sources:
-  - https://git.alfresco.com/process-services-public/alfresco-adf-app-deployment
+  - https://github.com/alfresco/alfresco-adf-app-deployment
 icon: https://avatars0.githubusercontent.com/u/391127?s=200&v=4
