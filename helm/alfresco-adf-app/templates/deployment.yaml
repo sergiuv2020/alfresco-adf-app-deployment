@@ -38,7 +38,7 @@ spec:
             - name: APP_CONFIG_OAUTH2_HOST
               value: {{ include "common.gateway-proto" . }}://{{ tpl (default (include "common.gateway-host" .) .Values.global.keycloak.host) . }}{{ include "common.keycloak-path" . }}/realms/{{ include "common.keycloak-realm" . }}
             - name: APP_CONFIG_OAUTH2_CLIENTID
-              value: {{ include "common.keycloak-client" . | quote }}
+              value: {{ include "common.keycloak-resource" . | quote }}
             - name: APP_CONFIG_OAUTH2_REDIRECT_SILENT_IFRAME_URI
               value: {{ include "common.gateway-proto" . }}://{{ include "common.ingress-host" . }}{{ include "common.ingress-path" . }}{{- if ne (include "common.ingress-path" .) "/" }}/{{- end }}assets/silent-refresh.html
             - name: APP_CONFIG_OAUTH2_REDIRECT_LOGIN

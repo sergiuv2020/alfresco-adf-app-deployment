@@ -20,7 +20,6 @@ global:
     ## Configure default Keycloak realm
     realm: "alfresco"
     resource: "activiti"
-    client: "activiti"
 
     ## Adds Keycloak extraEnv to deployments
     extraEnv: ""
