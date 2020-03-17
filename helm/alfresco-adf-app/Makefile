@@ -10,7 +10,7 @@ all:
 
 init:
 	helm plugin install https://github.com/lrills/helm-unittest
-	helm repo add activiti-cloud-charts https://activiti.github.io/activiti-cloud-charts/
+	helm repo add activiti https://activiti.github.io/activiti-cloud-helm-charts
 
 build:
 	helm dep build . ${opts}
