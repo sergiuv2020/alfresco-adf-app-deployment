@@ -40,10 +40,10 @@ image:
   repository: quay.io/alfresco/alfresco-adf-app
   tag: latest
   pullPolicy: IfNotPresent
-  internalPort: null
 service:
   type: ClusterIP
   port: 80
+  internalPort: 8080
 ingress:
   enabled: true
   hostName: null
