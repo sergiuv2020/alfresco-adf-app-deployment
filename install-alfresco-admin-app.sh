@@ -11,7 +11,6 @@ HELM_OPTS="
   -f .values.yaml
   --set global.registryPullSecrets={quay-registry-secret}
   --set image.repository=quay.io/alfresco/${APP_NAME}
-  --set image.internalPort=8080
   ${HELM_OPTS}
 "
 

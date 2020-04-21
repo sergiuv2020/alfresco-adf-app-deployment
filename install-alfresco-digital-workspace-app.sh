@@ -8,7 +8,6 @@ HELM_OPTS="
   --set image.tag=1.1.0
   --set ingress.path=/workspace
   --set ingress.annotations.nginx\.ingress\.kubernetes\.io\/proxy-body-size=5GB
-  --set image.internalPort=8080
   --set env.BASEPATH=./
   ${HELM_OPTS}
 "
