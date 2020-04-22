@@ -12,7 +12,7 @@ spec:
   ports:
     - port: {{ .Values.service.port }}
       {{- if .Values.image.internalPort }}
-      targetPort: {{ .Values.image.internalPort }}
+      targetPort: {{ .Values.service.internalPort }}
       {{- end }}
       protocol: TCP
   selector:
